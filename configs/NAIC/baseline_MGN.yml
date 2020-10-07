@@ -1,0 +1,13 @@
+_BASE_: "../Base-MGN.yml"
+
+MODEL:
+  BACKBONE:
+    DEPTH: "101x"
+    WITH_IBN: True
+    PRETRAIN_PATH: "/data/model/pretrain/resnet101_ibn_a-59ea0ac6.pth"
+
+DATASETS:
+  NAMES: ("Naic2020Train",)
+  TESTS: ("Naic2020Train",)
+
+OUTPUT_DIR: "logs/Naic2020/baseline_strongbaseline"

@@ -6,6 +6,7 @@ import copy
 import logging
 import os
 from collections import defaultdict
+from collections import OrderedDict
 from typing import Any
 
 import numpy as np
@@ -189,7 +190,10 @@ class Checkpointer(object):
         Args:
             checkpoint (Any): checkpoint contains the weights.
         """
-        checkpoint_state_dict = checkpoint.pop("model")
+        if 'model' in checkpoint:
+            checkpoint_state_dict = checkpoint.pop("model")
+        else:
+            checkpoint_state_dict = checkpoint
         self._convert_ndarray_to_tensor(checkpoint_state_dict)
 
         # if the state_dict comes from a model that was wrapped in a
@@ -199,6 +203,19 @@ class Checkpointer(object):
 
         # work around https://github.com/pytorch/pytorch/issues/24139
         model_state_dict = self.model.state_dict()
+        # 为了载入刘琪的模型，我必须做一些修改
+        new_checkpoint_state_dict = OrderedDict()
+        for key in checkpoint_state_dict:
+            # print(key)
+            if key.startswith('model.'):
+                new_checkpoint_state_dict['backbone.'+key]=checkpoint_state_dict[key]
+            elif key.startswith('classifier'):
+                # if key.startswith('classifier0'):
+                new_checkpoint_state_dict['heads.'+key]=checkpoint_state_dict[key]
+            else:
+                raise NotImplementedError
+        checkpoint_state_dict=new_checkpoint_state_dict
+
         for k in list(checkpoint_state_dict.keys()):
             if k in model_state_dict:
                 shape_model = tuple(model_state_dict[k].shape)
@@ -211,6 +228,8 @@ class Checkpointer(object):
                         )
                     )
                     checkpoint_state_dict.pop(k)
+
+        
 
         incompatible = self.model.load_state_dict(
             checkpoint_state_dict, strict=False

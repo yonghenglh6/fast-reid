@@ -19,19 +19,28 @@ class Baseline(nn.Module):
         super().__init__()
         self._cfg = cfg
         assert len(cfg.MODEL.PIXEL_MEAN) == len(cfg.MODEL.PIXEL_STD)
+
+        self.has_preprocess = cfg.MODEL.HAS_PREPROCESS
+        
+        # if self.has_preprocess:
         self.register_buffer("pixel_mean", torch.tensor(cfg.MODEL.PIXEL_MEAN).view(1, -1, 1, 1))
         self.register_buffer("pixel_std", torch.tensor(cfg.MODEL.PIXEL_STD).view(1, -1, 1, 1))
 
+        self._device = torch.tensor(cfg.MODEL.PIXEL_MEAN).device
+
         # backbone
         self.backbone = build_backbone(cfg)
+
 
         # head
         self.heads = build_heads(cfg)
 
     @property
     def device(self):
+        # if self.has_preprocess:
         return self.pixel_mean.device
-
+        # return self._device
+        
     def forward(self, batched_inputs):
         images = self.preprocess_image(batched_inputs)
         features = self.backbone(images)
@@ -64,8 +73,9 @@ class Baseline(nn.Module):
             images = batched_inputs.to(self.device)
         else:
             raise TypeError("batched_inputs must be dict or torch.Tensor, but get {}".format(type(batched_inputs)))
-
-        images.sub_(self.pixel_mean).div_(self.pixel_std)
+        
+        if self.has_preprocess:
+            images.sub_(self.pixel_mean).div_(self.pixel_std)
         return images
 
     def losses(self, outs):

@@ -1,0 +1,17 @@
+_BASE_: "../Base-Strongerbaseline.yml"
+
+MODEL:
+  BACKBONE:
+    NAME: "build_lqnet_backbone"
+    DEPTH: "101x"
+    WITH_IBN: True
+    PRETRAIN_PATH: "/home/liuhao/workspace/1_naic/fast-reid/net_last_res50.pth"
+  HEADS:
+    NAME: "LQHead"
+  WEIGHTS: "/home/liuhao/workspace/1_naic/fast-reid/net_last_res50.pth"
+  HAS_PREPROCESS: False
+DATASETS:
+  NAMES: ("Naic2020Train",)
+  TESTS: ("Naic2020Train",)
+
+OUTPUT_DIR: "logs/Naic2020/baseline_lq"

@@ -33,9 +33,8 @@ def main(args):
         cfg.defrost()
         cfg.MODEL.BACKBONE.PRETRAIN = False
         model = DefaultTrainer.build_model(cfg)
-
         Checkpointer(model).load(cfg.MODEL.WEIGHTS)  # load trained model
-
+        print('loadding ',cfg.MODEL.WEIGHTS)
         res = DefaultTrainer.test(cfg, model)
         return res
 

@@ -108,6 +108,10 @@ _C.MODEL.LOSSES.FL.SCALE = 1.0
 # Path to a checkpoint file to be loaded to the model. You can find available models in the model zoo.
 _C.MODEL.WEIGHTS = ""
 
+# Should we do mean and std before input net.
+_C.MODEL.HAS_PREPROCESS = True
+
+
 # Values to be used for image normalization
 _C.MODEL.PIXEL_MEAN = [0.485*255, 0.456*255, 0.406*255]
 # Values to be used for image normalization
